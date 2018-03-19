@@ -1,14 +1,62 @@
 import React from 'react';
-import { StyleSheet, Text, View, ImageBackground, Dimensions, TextInput, Button, Alert, Modal } from 'react-native';
+import * as firebase from 'firebase';
+import { StyleSheet, Text, View, ImageBackground, Dimensions, TextInput, Button, Alert, Modal ,Image} from 'react-native';
+
+var mailId='';
+var mdp='';
+var newMailId='';
+var newMdp1='';
+var newMdp2='';
+var mdpLost='';
 
 const { width: viewportWidth, height: viewportHeight } = Dimensions.get('window');
+
+firebase.initializeApp({
+  apiKey: "AIzaSyBHLLPacp0x4Jjw9nZkFdslFt2FjvzvQa8",
+  authDomain: "myfilms-54dd2.firebaseapp.com",
+  databaseURL: "https://myfilms-54dd2.firebaseio.com",
+  projectId: "myfilms-54dd2",
+  storageBucket: "myfilms-54dd2.appspot.com",
+  messagingSenderId: "1048699367292"
+});
+
 
 export default class ConnectScreen extends React.Component {
 
   static navigationOptions = {
-    drawerLabel: 'Deconnection',
-    //drawerLockMode:'locked-closed',
+    drawerLabel: 'Deconnexion',
+    drawerLockMode:'locked-closed',
   }
+  
+  async signup(email, pass) {
+    
+    try {
+        await firebase.auth()
+            .createUserWithEmailAndPassword(email, pass);
+          this.props.navigation.navigate("Home",{});
+
+        
+
+
+    } catch (error) {
+      Alert.alert("Le compte n'a pas été créé",error.toString())
+    }
+
+}
+
+async login(email, pass) {
+    
+  try {
+      await firebase.auth()
+          .signInWithEmailAndPassword(email, pass);
+          this.props.navigation.navigate("Home",{});
+
+
+  } catch (error) {
+    Alert.alert("Connexion impossible",error.toString())
+  }
+
+}
 
   onFocus() {
     this.setState({
@@ -18,10 +66,7 @@ export default class ConnectScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { id: '' };
-    this.state = { mdp: '' };
-    this.state = { showInscription: false };
-    this.state = { showPasswordLost: false };
+    this.state = { showInscription: false,showPasswordLost: false  };
   }
 
 
@@ -31,7 +76,7 @@ export default class ConnectScreen extends React.Component {
     return (
 
       <ImageBackground source={require('./connectImg.png')} style={styles.container}>
-
+        <Image source={require('./LogoC.png')} style={{height:'20%',width:'68%',marginTop:'20%',marginBottom:'10%'}}/>
         <View>
           <View style={{
             backgroundColor: this.state.text,
@@ -45,8 +90,8 @@ export default class ConnectScreen extends React.Component {
               placeholderTextColor='#B7C3C1'
               underlineColorAndroid='transparent'
               style={styleTI.container}
-              placeholder="Identifiant"
-              onChangeText={(id) => this.setState({ id })}
+              placeholder="Adresse e-mail"
+              onChangeText={(a) => mailId=a}
               onFocus={() => this.onFocus()}
             />
           </View>
@@ -62,33 +107,39 @@ export default class ConnectScreen extends React.Component {
               underlineColorAndroid='transparent'
               style={styleTI.container}
               placeholder="Mot de passe"
-              onChangeText={(mdp) => this.setState({ mdp })}
+              secureTextEntry={true}
+              onChangeText={(a) => mdp=a}
               onFocus={() => this.onFocus()}
             />
           </View>
           <View style={styles.styleButton}>
             <Button
-              onPress={() => navigate("Home", {})}
+              onPress={() => this.login(mailId,mdp)}
               title="Connexion"
               color="#00C618"
             />
           </View>
         </View>
         <View style={styles.viewBas}>
+        
+        <View style={styles.styleButton}>
+            <Button
+            onPress={() => this.setState({ showPasswordLost: true })}
+              title="Mot de passe oublié"
+              color="#0288D1"
+            />
+          </View>
+
           <View style={styles.styleButton}>
             <Button
               onPress={() => this.setState({ showInscription: true })}
               title="Inscription"
-              color="#303F9F"
+              color="#0288D1"
             />
           </View>
-          <View style={styles.styleButton}>
-            <Button
-            onPress={() => this.setState({ showPasswordLost: true })}
-              title="Mot de passe oublié"
-              color="#D32F2F"
-            />
-          </View>
+
+          
+          
         </View>
 
         <Modal
@@ -107,20 +158,10 @@ export default class ConnectScreen extends React.Component {
                   style={styleTI.containerModalInscription}
                   placeholder="Adresse mail"
                   onFocus={() => this.onFocus()}
+                  onChange={(a) => newMailId=a.nativeEvent.text}
                 />
               </View>
-
-              <View style={styles.TIModalInscription}>
-                <TextInput
-
-                  placeholderTextColor='#BDBDBD'
-                  underlineColorAndroid='transparent'
-                  style={styleTI.containerModalInscription}
-                  placeholder="Identifiant"
-                  onFocus={() => this.onFocus()}
-                />
-              </View>
-
+              
               <View style={styles.TIModalInscription}>
 
                 <TextInput
@@ -129,7 +170,9 @@ export default class ConnectScreen extends React.Component {
                   underlineColorAndroid='transparent'
                   style={styleTI.containerModalInscription}
                   placeholder="Mot de passe"
+                  secureTextEntry={true}
                   onFocus={() => this.onFocus()}
+                  onChange={(a) => newMdp1=a.nativeEvent.text}
                 />
               </View>
 
@@ -141,13 +184,19 @@ export default class ConnectScreen extends React.Component {
                   underlineColorAndroid='transparent'
                   style={styleTI.containerModalInscription}
                   placeholder="Confirmation mot de passe"
+                  secureTextEntry={true}
                   onFocus={() => this.onFocus()}
+                  onChange={(a) => newMdp2=a.nativeEvent.text}
                 />
               </View>
 
               <View style={styles.styleButton}>
                 <Button
-                  onPress={() => this.setState({ showInscription: false })}
+                  onPress={() => {
+                    this.setState({ showInscription: false });
+                  this.signup(newMailId ,newMdp2);
+                }
+                }
                   title="S'inscrire"
                   color="#303F9F"
                 />
@@ -172,12 +221,15 @@ export default class ConnectScreen extends React.Component {
                   style={styleTI.containerModalInscription}
                   placeholder="Adresse mail"
                   onFocus={() => this.onFocus()}
+                  onChange={(a)=> mdpLost=a.nativeEvent.text}
                 />
               </View>
 
               <View style={styles.styleButton}>
                 <Button
-                  onPress={() => this.setState({ showPasswordLost: false })}
+                  onPress={() => {
+                    this.setState({ showPasswordLost: false }),
+                    firebase.auth().sendPasswordResetEmail(mdpLost).then(()=>Alert.alert('Mail envoyé !','Le mail a bien été envoyé')).catch((error)=>Alert.alert("Le mail n'a pas pu être envoyé",error.toString()))}}
                   title="recuperer mon mot de passe"
                   color="#D32F2F"
                 />
@@ -197,11 +249,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
     width: viewportWidth,
     height: viewportHeight,
     flexDirection: 'column',
-    justifyContent: 'center',
   },
 
   viewBas: {

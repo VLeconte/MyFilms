@@ -1,4 +1,5 @@
 import React from 'react';
+import * as firebase from 'firebase';
 import { StyleSheet, Text, View, ImageBackground, Dimensions, TextInput, ActivityIndicator, Button, Alert, Image, ScrollView } from 'react-native';
 
 const{width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
@@ -62,7 +63,7 @@ export default class HomeScreen extends React.Component {
 
     const renderedImages =  this.state.searchList.map((films,index) => {
     return (<View key={index} style={{flex:1,flexDirection:'column',width: viewportWidth,alignItems:'center'}}>
-    <Image source={{uri: films.Poster}} style={{height:426, width:320,resizeMode:'cover',marginTop:'3%',borderColor:'#4CAF50',borderWidth:4}} />
+    <Image source={{uri: films.Poster}} style={{height:426, width:320,resizeMode:'cover',marginTop:'3%',borderColor:'#FF5252',borderWidth:4}} />
     <Text style={{backgroundColor:'#FFFFFF',color:'#212121',width:320,fontWeight:'bold',textAlign:'center'}}> {films.Title}</Text>
     </View>);
     });
@@ -71,7 +72,7 @@ export default class HomeScreen extends React.Component {
     return (
       <View style={styles.container}>
         <View style={{
-            borderBottomColor: '#D32F2F',
+            borderBottomColor: '#009688',
             borderBottomWidth: 2,
             margin: 15,
             flexDirection:'row'
@@ -106,7 +107,8 @@ const styles = StyleSheet.create({
     width: viewportWidth, 
     height:viewportHeight,
     flexDirection: 'column',
-    backgroundColor:'#D32F2F',
+    backgroundColor:'#009688',
+    paddingTop:'3%',
   },
 
   TI: {
