@@ -1,4 +1,5 @@
 import React from 'react';
+import StarRating from 'react-native-star-rating';
 import * as firebase from 'firebase';
 import { StyleSheet, Text, View, ImageBackground, Dimensions, TextInput, ActivityIndicator, Button, Alert, Image, ScrollView , Modal, TouchableHighlight} from 'react-native';
 
@@ -11,7 +12,13 @@ export default class HomeScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { recherche: '',dataSource:'',isLoading:true, modalFilm:false,filmSelectedID:'',filmSelectedPoster:'' };
+    this.state = { recherche: '',dataSource:'',isLoading:true, modalFilm:false,filmSelectedID:'',filmSelectedPoster:'',starCount: 3.5 };
+  }
+
+  onStarRatingPress(rating) {
+    this.setState({
+      starCount: rating
+    });
   }
 
   componentDidMount(){
@@ -100,19 +107,19 @@ export default class HomeScreen extends React.Component {
           <View style={styles.modalOutter}>
             <View style={styles.modalInscriptionInner}>
 
-            <Image source={{uri: this.state.filmSelectedPoster}} style={{height:426, width:320,resizeMode:'cover',marginTop:'3%',borderColor:'#FF5252',borderWidth:4}} />
+            <Image source={{uri: this.state.filmSelectedPoster}} style={{height:426, width:320,resizeMode:'cover',borderColor:'#FF5252',borderWidth:4}} />
               
-              <View style={styles.TIModalInscription}>
+              <View style={styles.starRate}>
 
-                <TextInput
-
-                  placeholderTextColor='#BDBDBD'
-                  underlineColorAndroid='transparent'
-                  style={styles.containerModalInscription}
-                  placeholder="Mot de passe"
-                  secureTextEntry={true}
-                  onFocus={() => this.onFocus()}
-                  onChange={(a) => newMdp1=a.nativeEvent.text}
+                <StarRating
+                    disabled={false}
+                    halfStarEnabled={true}
+                    emptyStarColor='#FFFFFF'
+                    fullStarColor='#4CAF50'
+                    halfStarColor='#CDDC39'
+                    maxStars={10}
+                    rating={this.state.starCount}
+                    selectedStar={(rating) => this.onStarRatingPress(rating)}
                 />
               </View>
 
@@ -171,6 +178,10 @@ const styles = StyleSheet.create({
     color: '#212121',
     fontSize: 20,
     backgroundColor:'#FFFFFF',
+  },
+
+  starRate: {
+    padding:'4%',
   },
 
   modalOutter: {
