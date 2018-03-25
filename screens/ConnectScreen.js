@@ -48,7 +48,7 @@ async login(email, pass) {
     
   try {
       await firebase.auth()
-          .signInWithEmailAndPassword(email, pass);
+          .signInWithEmailAndPassword('vleconte01@gmail.com', '030169vi');
           this.props.navigation.navigate("Home",{});
 
 

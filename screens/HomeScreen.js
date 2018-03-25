@@ -1,6 +1,6 @@
 import React from 'react';
 import * as firebase from 'firebase';
-import { StyleSheet, Text, View, ImageBackground, Dimensions, TextInput, ActivityIndicator, Button, Alert, Image, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, Dimensions, TextInput, ActivityIndicator, Button, Alert, Image, ScrollView , Modal, TouchableHighlight} from 'react-native';
 
 const{width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
 
@@ -11,9 +11,7 @@ export default class HomeScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { recherche: '' };
-    this.state = { dataSource: '' };
-    this.state ={ isLoading: true};
+    this.state = { recherche: '',dataSource:'',isLoading:true, modalFilm:false,filmSelectedID:'',filmSelectedPoster:'' };
   }
 
   componentDidMount(){
@@ -62,10 +60,12 @@ export default class HomeScreen extends React.Component {
     }
 
     const renderedImages =  this.state.searchList.map((films,index) => {
-    return (<View key={index} style={{flex:1,flexDirection:'column',width: viewportWidth,alignItems:'center'}}>
+    return (<TouchableHighlight key={index} onPress={() => {this.setState({modalFilm:true}),this.setState({filmSelectedPoster:films.Poster}),this.setState({filmSelectedID:films.imdbID})}}>
+    <View style={{flex:1,flexDirection:'column',width: viewportWidth,alignItems:'center'}}>
     <Image source={{uri: films.Poster}} style={{height:426, width:320,resizeMode:'cover',marginTop:'3%',borderColor:'#FF5252',borderWidth:4}} />
     <Text style={{backgroundColor:'#FFFFFF',color:'#212121',width:320,fontWeight:'bold',textAlign:'center'}}> {films.Title}</Text>
-    </View>);
+    </View>
+    </TouchableHighlight>);
     });
 
 
@@ -91,6 +91,59 @@ export default class HomeScreen extends React.Component {
           <ScrollView contentContainerStyle={{margin:0,padding:0,}}>
             {renderedImages}
           </ScrollView>
+
+          <Modal
+          visible={this.state.modalFilm}
+          transparent={true}
+          animationType='fade'
+          onRequestClose={() => this.setState({ modalFilm: false })} >
+          <View style={styles.modalOutter}>
+            <View style={styles.modalInscriptionInner}>
+
+            <Image source={{uri: this.state.filmSelectedPoster}} style={{height:426, width:320,resizeMode:'cover',marginTop:'3%',borderColor:'#FF5252',borderWidth:4}} />
+              
+              <View style={styles.TIModalInscription}>
+
+                <TextInput
+
+                  placeholderTextColor='#BDBDBD'
+                  underlineColorAndroid='transparent'
+                  style={styles.containerModalInscription}
+                  placeholder="Mot de passe"
+                  secureTextEntry={true}
+                  onFocus={() => this.onFocus()}
+                  onChange={(a) => newMdp1=a.nativeEvent.text}
+                />
+              </View>
+
+              <View style={styles.TIModalInscription}>
+
+                <TextInput
+
+                  placeholderTextColor='#BDBDBD'
+                  underlineColorAndroid='transparent'
+                  style={styles.containerModalInscription}
+                  placeholder="Confirmation mot de passe"
+                  secureTextEntry={true}
+                  onFocus={() => this.onFocus()}
+                  onChange={(a) => newMdp2=a.nativeEvent.text}
+                />
+              </View>
+
+              <View style={styles.styleButton}>
+                <Button
+                  onPress={() => {
+                    this.setState({ showInscription: false });
+                  this.signup(newMailId ,newMdp2);
+                }
+                }
+                  title="S'inscrire"
+                  color="#303F9F"
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -118,5 +171,37 @@ const styles = StyleSheet.create({
     color: '#212121',
     fontSize: 20,
     backgroundColor:'#FFFFFF',
-  }
+  },
+
+  modalOutter: {
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: viewportWidth,
+    height: viewportHeight,
+  },
+
+  modalInscriptionInner: {
+    backgroundColor: '#212121',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '90%',
+    height: '90%',
+  },
+
+  TIModalInscription: {
+    borderBottomColor: 'black',
+    borderBottomWidth: 2,
+    margin: 15,
+  },
+
+  containerModalInscription: {
+    height: 40,
+    width: 320,
+    margin: 1,
+    color: 'black',
+    fontSize: 20,
+  },
 });
