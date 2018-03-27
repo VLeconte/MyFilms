@@ -5,6 +5,14 @@ import {DatePickerAndroid ,StyleSheet, Text, View, ImageBackground, Dimensions, 
 
 const{width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
 
+const leUser = null;
+const uid =null;
+const nbUser=1;
+const user = new Array(0);
+const myUser = [];
+const userCo=null;
+
+
 export default class HomeScreen extends React.Component {
   static navigationOptions={
     drawerLabel: 'Accueil',
@@ -20,7 +28,9 @@ export default class HomeScreen extends React.Component {
       filmSelectedID:'',
       filmSelectedPoster:'',
       starCount: 3.5,
-      dateFilmSelected:new Date()};
+      dateFilmSelected:new Date(),
+
+    };
   }
 
   onStarRatingPress(rating) {
@@ -77,6 +87,31 @@ export default class HomeScreen extends React.Component {
         console.error(error);
       });
   }
+
+  async checkConnexion()  {
+
+    try{
+      leUser = firebase.auth().currentUser;
+
+      Alert.alert(leUser.email);
+
+      uid = leUser.uid;
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+  addMovie(){
+    let movie ={
+      id:this.state.filmSelectedID,
+      poster:this.state.filmSelectedPoster,
+      note:this.state.starCount,
+      date:this.state.dateFilmSelected.getTime(),
+    }
+    firebase.database().ref(uid).push(movie);
+  }
+  
 
   render() {
 
@@ -159,8 +194,9 @@ export default class HomeScreen extends React.Component {
               <View style={{marginTop:'2%'}}>
                 <Button
                   onPress={() => {
-                    this.setState({ showInscription: false });
-                  this.signup(newMailId ,newMdp2);
+                    this.setState({ modalFilm: false });
+                    this.checkConnexion();
+                    this.addMovie();
                 }
                 }
                   title="Valider"
