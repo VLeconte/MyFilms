@@ -1,7 +1,7 @@
 import React from 'react';
 import StarRating from 'react-native-star-rating';
 import * as firebase from 'firebase';
-import { StyleSheet, Text, View, ImageBackground, Dimensions, TextInput, ActivityIndicator, Button, Alert, Image, ScrollView , Modal, TouchableHighlight} from 'react-native';
+import {DatePickerAndroid ,StyleSheet, Text, View, ImageBackground, Dimensions, TextInput, ActivityIndicator, Button, Alert, Image, ScrollView , Modal, TouchableHighlight} from 'react-native';
 
 const{width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
 
@@ -12,7 +12,15 @@ export default class HomeScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { recherche: '',dataSource:'',isLoading:true, modalFilm:false,filmSelectedID:'',filmSelectedPoster:'',starCount: 3.5 };
+    this.state = { 
+      recherche: '',
+      dataSource:'',
+      isLoading:true,
+      modalFilm:false,
+      filmSelectedID:'',
+      filmSelectedPoster:'',
+      starCount: 3.5,
+      dateFilmSelected:new Date()};
   }
 
   onStarRatingPress(rating) {
@@ -38,6 +46,20 @@ export default class HomeScreen extends React.Component {
         console.error(error);
       });
   }
+
+  async openUpPicker() {
+    try {
+        const {action, year, month, day} = await DatePickerAndroid.open({
+          date: new Date(),
+          mode: "spinner"
+        });
+        if (action !== DatePickerAndroid.dismissedAction) {
+          this.setState({dateFilmSelected:(new Date(year,month,[day]))})
+        }
+      } catch ({code, message}) {
+        console.warn('Cannot open date picker', message);
+      }
+}
 
   rechercheFilm(){
     return fetch('http://www.omdbapi.com/?apikey=aa5829d5&s='+this.state.recherche+'&r=json.json')
@@ -125,26 +147,23 @@ export default class HomeScreen extends React.Component {
 
               <View style={styles.TIModalInscription}>
 
-                <TextInput
-
-                  placeholderTextColor='#BDBDBD'
-                  underlineColorAndroid='transparent'
-                  style={styles.containerModalInscription}
-                  placeholder="Confirmation mot de passe"
-                  secureTextEntry={true}
-                  onFocus={() => this.onFocus()}
-                  onChange={(a) => newMdp2=a.nativeEvent.text}
-                />
+                <Button 
+                onPress={()=>{this.openUpPicker()}}
+              
+              
+              title={this.state.dateFilmSelected.getDate()+"-"+(this.state.dateFilmSelected.getMonth()+1)+"-"+this.state.dateFilmSelected.getFullYear()}
+              color = "#4CAF50"
+              />
               </View>
 
-              <View style={styles.styleButton}>
+              <View style={{marginTop:'2%'}}>
                 <Button
                   onPress={() => {
                     this.setState({ showInscription: false });
                   this.signup(newMailId ,newMdp2);
                 }
                 }
-                  title="S'inscrire"
+                  title="Valider"
                   color="#303F9F"
                 />
               </View>
