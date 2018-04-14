@@ -11,15 +11,11 @@ const nbUser=1;
 const user = new Array(0);
 const myUser = [];
 const userCo=null;
-const filmExiste=false;
-const filmExisteDate=new Date(1521982140000);
-const filmExisteRef='';
-const starCount=5;
 
 
-export default class HomeScreen extends React.Component {
+export default class UserScreen extends React.Component {
   static navigationOptions={
-    drawerLabel: 'Accueil',
+    drawerLabel: 'Mes films',
   }
 
   constructor(props) {
@@ -31,19 +27,51 @@ export default class HomeScreen extends React.Component {
       modalFilm:false,
       filmSelectedID:'',
       filmSelectedPoster:'',
-      starNote:5,
+      starCount: 5,
+      dateFilmSelected:new Date(1521982140000),
+      filmExiste:false,
+      filmExisteDate:100,
+      filmExisteRef:'',
     };
   }
 
   onStarRatingPress(rating) {
-    
-      starCount=rating
-      this.setState({starNote:rating})
-    
+    this.setState({
+      starCount: rating
+    });
   }
 
   componentDidMount(){
-    return fetch('http://www.omdbapi.com/?apikey=aa5829d5&s=guardians+of+the+galaxy&r=json.json')
+    this.checkConnexion()
+    try{
+    
+      firebase.database().ref(uid).orderByChild('date').on("value", (data)=> {
+        data.forEach(function(childessai)
+        {console.log(childessai.ref)})})
+          /*filmExist=true
+          filmExistDate=childessai.val().date
+          starCoun=childessai.val().note
+          filmExistRef=childessai.ref
+        })
+        })
+        if(filmExist)
+        {
+          this.setState({filmExisteRef:filmExistRef})
+          this.setState({filmExiste:filmExist});
+          this.setState({filmExisteDate:filmExistDate})
+          this.setState({starCount:starCoun})
+        }*/
+    
+  }
+  catch(error){
+    console.log(error)
+  }
+
+
+
+
+
+    /*return fetch('http://www.omdbapi.com/?apikey=aa5829d5&s=guardians+of+the+galaxy&r=json.json')
       .then((response) => response.json())
       .then((responseJson) => {
 
@@ -57,13 +85,13 @@ export default class HomeScreen extends React.Component {
       })
       .catch((error) =>{
         console.error(error);
-      });
+      });*/
   }
 
   async openUpPicker() {
     if(this.state.filmExiste)
     {
-      datePickup=filmExisteDate
+      datePickup=new Date(this.state.filmExisteDate)
     }
     else
     {
@@ -75,7 +103,7 @@ export default class HomeScreen extends React.Component {
           mode: "spinner"
         });
         if (action !== DatePickerAndroid.dismissedAction) {
-          filmExisteDate=new Date(year,month,[day])
+          this.setState({dateFilmSelected:(new Date(year,month,[day]))})
         }
       } catch ({code, message}) {
         console.warn('Cannot open date picker', message);
@@ -116,14 +144,12 @@ export default class HomeScreen extends React.Component {
     let movie ={
       id:this.state.filmSelectedID,
       poster:this.state.filmSelectedPoster,
-      note:starCount,
-      date:filmExisteDate.getTime(),
-      dateInverse:-filmExisteDate.getTime(),
+      note:this.state.starCount,
+      date:this.state.dateFilmSelected.getTime(),
     }
-    if(filmExiste)
+    if(this.state.filmExiste)
     {
-    firebase.database().ref(filmExisteRef).update(movie)
-    filmExiste=false;
+    firebase.database().ref(this.state.filmExisteRef).update(movie)
     }
     else
     {
@@ -133,17 +159,25 @@ export default class HomeScreen extends React.Component {
 
   checkMovie(idFilm){
   try{
-    firebase.database().ref(uid).orderByChild('id').equalTo(idFilm).once("value", (data)=> {
+    
+    firebase.database().ref(uid).orderByChild('id').equalTo(idFilm).on("value", (data)=> {
       data.forEach(function(childessai)
       {
-        filmExiste=true
-        filmExisteDate=new Date(childessai.val().date)
-        starCount=childessai.val().note
-        filmExisteRef=childessai.ref
+        filmExist=true
+        filmExistDate=childessai.val().date
+        starCoun=childessai.val().note
+        filmExistRef=childessai.ref
       })
-      })}
+      })
+      if(filmExist)
+      {
+        this.setState({filmExisteRef:filmExistRef})
+        this.setState({filmExiste:filmExist});
+        this.setState({filmExisteDate:filmExistDate})
+        this.setState({starCount:starCoun})
+      }
   
-
+}
 catch(error){
   console.log(error)
 }
@@ -171,21 +205,7 @@ catch(error){
 
     return (
       <ImageBackground source={require('./HomeCinemaGood.jpg')} style={styles.container}>
-        <View style={{
-            margin: 15,
-            flexDirection:'row'
-          }}
-          >
-          <Image source={require('./Logo.png')} style={{height:40, width:40,resizeMode:'cover', marginRight:'2%'}}/>
-            <TextInput
-              placeholderTextColor='#757575'
-              underlineColorAndroid='transparent'
-              style={styles.TI}
-              placeholder={'Nom du film'}
-              onChangeText={(recherche) => this.setState({ recherche })}
-              onEndEditing={(trouver) => this.rechercheFilm()}
-            />
-          </View>
+        
           <ScrollView contentContainerStyle={{margin:0,padding:0,}}>
             {renderedImages}
           </ScrollView>
@@ -209,7 +229,7 @@ catch(error){
                     fullStarColor='#4CAF50'
                     halfStarColor='#CDDC39'
                     maxStars={10}
-                    rating={this.state.starNote}
+                    rating={this.state.starCount}
                     selectedStar={(rating) => this.onStarRatingPress(rating)}
                 />
               </View>
@@ -220,7 +240,7 @@ catch(error){
                 onPress={()=>{this.openUpPicker()}}
               
               
-              title={filmExisteDate.getDate()+"-"+(filmExisteDate.getMonth()+1)+"-"+filmExisteDate.getFullYear()}
+              title={this.state.dateFilmSelected.getDate()+"-"+(this.state.dateFilmSelected.getMonth()+1)+"-"+this.state.dateFilmSelected.getFullYear()}
               color = "#4CAF50"
               />
               </View>
