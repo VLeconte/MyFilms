@@ -11,6 +11,11 @@ const nbUser=1;
 const user = new Array(0);
 const myUser = [];
 const userCo=null;
+const filmExiste=false;
+const filmExisteDate=new Date(1521982140000);
+const filmExisteRef='';
+const starCount=5;
+const mesFilms=[];
 
 
 export default class UserScreen extends React.Component {
@@ -27,71 +32,43 @@ export default class UserScreen extends React.Component {
       modalFilm:false,
       filmSelectedID:'',
       filmSelectedPoster:'',
-      starCount: 5,
-      dateFilmSelected:new Date(1521982140000),
-      filmExiste:false,
-      filmExisteDate:100,
-      filmExisteRef:'',
+      starNote:5,
+      mesFilmsState:[],
     };
   }
 
   onStarRatingPress(rating) {
-    this.setState({
-      starCount: rating
-    });
+    
+      starCount=rating
+      this.setState({starNote:rating})
+    
   }
 
-  componentDidMount(){
-    this.checkConnexion()
+    componentDidMount(){
+    this.checkConnexion().then((blabla)=>{
     try{
     
-      firebase.database().ref(uid).orderByChild('date').on("value", (data)=> {
+      return firebase.database().ref(uid).orderByChild('dateInverse').once("value", (data)=> {
         data.forEach(function(childessai)
-        {console.log(childessai.ref)})})
-          /*filmExist=true
-          filmExistDate=childessai.val().date
-          starCoun=childessai.val().note
-          filmExistRef=childessai.ref
-        })
-        })
-        if(filmExist)
         {
-          this.setState({filmExisteRef:filmExistRef})
-          this.setState({filmExiste:filmExist});
-          this.setState({filmExisteDate:filmExistDate})
-          this.setState({starCount:starCoun})
-        }*/
-    
-  }
+          mesFilms.push(childessai.val())
+        })})
+        
+      }
+      
   catch(error){
     console.log(error)
+  }}).then((euuuh)=>{
+    this.setState({isLoading:false,mesFilmsState:mesFilms})})
+  
   }
 
-
-
-
-
-    /*return fetch('http://www.omdbapi.com/?apikey=aa5829d5&s=guardians+of+the+galaxy&r=json.json')
-      .then((response) => response.json())
-      .then((responseJson) => {
-
-        this.setState({
-          isLoading: false,
-          searchList: responseJson.Search,
-        }, function(){
-
-        });
-
-      })
-      .catch((error) =>{
-        console.error(error);
-      });*/
-  }
+  
 
   async openUpPicker() {
     if(this.state.filmExiste)
     {
-      datePickup=new Date(this.state.filmExisteDate)
+      datePickup=filmExisteDate
     }
     else
     {
@@ -103,7 +80,7 @@ export default class UserScreen extends React.Component {
           mode: "spinner"
         });
         if (action !== DatePickerAndroid.dismissedAction) {
-          this.setState({dateFilmSelected:(new Date(year,month,[day]))})
+          filmExisteDate=new Date(year,month,[day])
         }
       } catch ({code, message}) {
         console.warn('Cannot open date picker', message);
@@ -144,12 +121,14 @@ export default class UserScreen extends React.Component {
     let movie ={
       id:this.state.filmSelectedID,
       poster:this.state.filmSelectedPoster,
-      note:this.state.starCount,
-      date:this.state.dateFilmSelected.getTime(),
+      note:starCount,
+      date:filmExisteDate.getTime(),
+      dateInverse:-filmExisteDate.getTime(),
     }
-    if(this.state.filmExiste)
+    if(filmExiste)
     {
-    firebase.database().ref(this.state.filmExisteRef).update(movie)
+    firebase.database().ref(filmExisteRef).update(movie)
+    filmExiste=false;
     }
     else
     {
@@ -159,25 +138,17 @@ export default class UserScreen extends React.Component {
 
   checkMovie(idFilm){
   try{
-    
-    firebase.database().ref(uid).orderByChild('id').equalTo(idFilm).on("value", (data)=> {
+    firebase.database().ref(uid).orderByChild('id').equalTo(idFilm).once("value", (data)=> {
       data.forEach(function(childessai)
       {
-        filmExist=true
-        filmExistDate=childessai.val().date
-        starCoun=childessai.val().note
-        filmExistRef=childessai.ref
+        filmExiste=true
+        filmExisteDate=new Date(childessai.val().date)
+        starCount=childessai.val().note
+        filmExisteRef=childessai.ref
       })
-      })
-      if(filmExist)
-      {
-        this.setState({filmExisteRef:filmExistRef})
-        this.setState({filmExiste:filmExist});
-        this.setState({filmExisteDate:filmExistDate})
-        this.setState({starCount:starCoun})
-      }
+      })}
   
-}
+
 catch(error){
   console.log(error)
 }
@@ -193,10 +164,10 @@ catch(error){
       )
     }
 
-    const renderedImages =  this.state.searchList.map((films,index) => {
-    return (<TouchableHighlight key={index} onPress={() => {this.setState({modalFilm:true}),this.setState({filmSelectedPoster:films.Poster}),this.setState({filmSelectedID:films.imdbID}),this.checkConnexion(),this.checkMovie(films.imdbID)}}>
+    const renderedImages =  this.state.mesFilmsState.map((films,index) => {
+    return (<TouchableHighlight key={index} onPress={() => {this.setState({modalFilm:true}),this.setState({filmSelectedPoster:films.poster}),this.setState({filmSelectedID:films.id}),this.checkMovie(films.id)}}>
     <View style={{flex:1,flexDirection:'column',width: viewportWidth,alignItems:'center'}}>
-    <Image source={{uri: films.Poster}} style={{height:426, width:320,resizeMode:'cover',marginTop:'3%',borderColor:'#FF5252',borderWidth:4}} />
+    <Image source={{uri: films.poster}} style={{height:426, width:320,resizeMode:'cover',marginTop:'3%',borderColor:'#FF5252',borderWidth:4}} />
     <Text style={{backgroundColor:'#FFFFFF',color:'#212121',width:320,fontWeight:'bold',textAlign:'center'}}> {films.Title}</Text>
     </View>
     </TouchableHighlight>);
@@ -229,7 +200,7 @@ catch(error){
                     fullStarColor='#4CAF50'
                     halfStarColor='#CDDC39'
                     maxStars={10}
-                    rating={this.state.starCount}
+                    rating={this.state.starNote}
                     selectedStar={(rating) => this.onStarRatingPress(rating)}
                 />
               </View>
@@ -240,7 +211,7 @@ catch(error){
                 onPress={()=>{this.openUpPicker()}}
               
               
-              title={this.state.dateFilmSelected.getDate()+"-"+(this.state.dateFilmSelected.getMonth()+1)+"-"+this.state.dateFilmSelected.getFullYear()}
+              title={filmExisteDate.getDate()+"-"+(filmExisteDate.getMonth()+1)+"-"+filmExisteDate.getFullYear()}
               color = "#4CAF50"
               />
               </View>
