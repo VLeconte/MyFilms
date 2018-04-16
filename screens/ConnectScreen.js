@@ -200,9 +200,17 @@ async login(email, pass) {
               <View style={styles.styleButton}>
                 <Button
                   onPress={() => {
+                    if(newMdp1==newMdp2)
+                    {
                     this.setState({ showInscription: false });
                   this.signup(newMailId ,newMdp2);
                 }
+                else
+                {
+                  this.setState({ showInscription: false });
+                  Alert.alert("Mots de passe différents");
+                }
+              }
                 }
                   title="S'inscrire"
                   color="#303F9F"
