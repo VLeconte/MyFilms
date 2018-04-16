@@ -5,14 +5,16 @@ import { DrawerNavigator} from 'react-navigation';
 import ConnectScreen from './screens/ConnectScreen'
 import HomeScreen from './screens/HomeScreen'
 import UserScreen from './screens/UserScreen'
+import StatScreen from './screens/StatScreen'
 
 const Navigation = DrawerNavigator({
     Connect : {screen : ConnectScreen},
     Home : {screen : HomeScreen},
     User : {screen : UserScreen},
+    Stat : {screen : StatScreen},
     },
     {
-        order:['Home','User','Connect'],
+        order:['Home','User','Stat','Connect'],
         initialRouteName:'Connect',
         drawerBackgroundColor :'#D32F2F',
         contentOptions:

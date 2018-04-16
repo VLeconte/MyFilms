@@ -44,10 +44,30 @@ export default class UserScreen extends React.Component {
     
   }
 
+  checkMovie(idFilm){
+    this.checkConnexion().then((hop)=>{try{
+      firebase.database().ref(uid).orderByChild('id').equalTo(idFilm).on("value", (data)=> {
+        data.forEach(function(childessai)
+        {
+          filmExiste=true
+          filmExisteDate=new Date(childessai.val().date)
+          starCount=childessai.val().note
+          filmExisteRef=childessai.ref
+        })
+        })}
+    
+  
+  catch(error){
+    console.log(error)
+  }}).then((filmExisteRef)=>(this.setState({modalFilm:true,starNote:starCount})))
+
+  
+  }
+
     componentDidMount(){
+    mesFilms=[]
     this.checkConnexion().then((blabla)=>{
     try{
-    
       return firebase.database().ref(uid).orderByChild('dateInverse').once("value", (data)=> {
         data.forEach(function(childessai)
         {
@@ -136,23 +156,8 @@ export default class UserScreen extends React.Component {
     }
   }
 
-  checkMovie(idFilm){
-  try{
-    firebase.database().ref(uid).orderByChild('id').equalTo(idFilm).once("value", (data)=> {
-      data.forEach(function(childessai)
-      {
-        filmExiste=true
-        filmExisteDate=new Date(childessai.val().date)
-        starCount=childessai.val().note
-        filmExisteRef=childessai.ref
-      })
-      })}
-  
 
-catch(error){
-  console.log(error)
-}
-}
+  
   
   render() {
 
@@ -165,17 +170,20 @@ catch(error){
     }
 
     const renderedImages =  this.state.mesFilmsState.map((films,index) => {
-    return (<TouchableHighlight key={index} onPress={() => {this.setState({modalFilm:true}),this.setState({filmSelectedPoster:films.poster}),this.setState({filmSelectedID:films.id}),this.checkMovie(films.id)}}>
-    <View style={{flex:1,flexDirection:'column',width: viewportWidth,alignItems:'center'}}>
-    <Image source={{uri: films.poster}} style={{height:426, width:320,resizeMode:'cover',marginTop:'3%',borderColor:'#FF5252',borderWidth:4}} />
-    <Text style={{backgroundColor:'#FFFFFF',color:'#212121',width:320,fontWeight:'bold',textAlign:'center'}}> {films.Title}</Text>
+    return (<TouchableHighlight key={index} onPress={() => {this.setState({filmSelectedPoster:films.poster}),this.setState({filmSelectedID:films.id}),this.checkMovie(films.id)}}>
+    <View style={{flex:1,flexDirection:'column',width:320,alignItems:'center',borderColor:'#FF5252',borderWidth:4,marginBottom:'2%'}}>
+    <ImageBackground source={{uri: films.poster}} style={{flex:1,height:422,width:312,justifyContent:'flex-end'}} >
+    
+    <Text style={{backgroundColor:'rgba(52, 52, 52, 0.9)',color:'white',width:312,fontWeight:'bold',textAlign:'center'}}> {films.titre}</Text>
+      </ImageBackground>
+      
     </View>
     </TouchableHighlight>);
     });
 
 
     return (
-      <ImageBackground source={require('./HomeCinemaGood.jpg')} style={styles.container}>
+      <ImageBackground source={require('./UserCinemaGood.jpeg')} style={styles.container}>
         
           <ScrollView contentContainerStyle={{margin:0,padding:0,}}>
             {renderedImages}

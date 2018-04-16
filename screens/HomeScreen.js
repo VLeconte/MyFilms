@@ -15,6 +15,8 @@ const filmExiste=false;
 const filmExisteDate=new Date(1521982140000);
 const filmExisteRef='';
 const starCount=5;
+const filmPoster='';
+const renderedImages=null;
 
 
 export default class HomeScreen extends React.Component {
@@ -32,6 +34,7 @@ export default class HomeScreen extends React.Component {
       filmSelectedID:'',
       filmSelectedPoster:'',
       starNote:5,
+      filmTitre:'',
     };
   }
 
@@ -119,6 +122,7 @@ export default class HomeScreen extends React.Component {
       note:starCount,
       date:filmExisteDate.getTime(),
       dateInverse:-filmExisteDate.getTime(),
+      titre:this.state.filmTitre,
     }
     if(filmExiste)
     {
@@ -132,21 +136,21 @@ export default class HomeScreen extends React.Component {
   }
 
   checkMovie(idFilm){
-  try{
-    firebase.database().ref(uid).orderByChild('id').equalTo(idFilm).once("value", (data)=> {
-      data.forEach(function(childessai)
-      {
-        filmExiste=true
-        filmExisteDate=new Date(childessai.val().date)
-        starCount=childessai.val().note
-        filmExisteRef=childessai.ref
-      })
-      })}
+    this.checkConnexion().then((hop)=>{try{
+      firebase.database().ref(uid).orderByChild('id').equalTo(idFilm).on("value", (data)=> {
+        data.forEach(function(childessai)
+        {
+          filmExiste=true
+          filmExisteDate=new Date(childessai.val().date)
+          starCount=childessai.val().note
+          filmExisteRef=childessai.ref
+        })
+        })}
+    
   
-
-catch(error){
-  console.log(error)
-}
+  catch(error){
+    console.log(error)
+  }}).then((filmExiste)=>(this.setState({modalFilm:true,starNote:starCount})))
 }
   
   render() {
@@ -158,15 +162,24 @@ catch(error){
         </View>
       )
     }
-
-    const renderedImages =  this.state.searchList.map((films,index) => {
-    return (<TouchableHighlight key={index} onPress={() => {this.setState({modalFilm:true}),this.setState({filmSelectedPoster:films.Poster}),this.setState({filmSelectedID:films.imdbID}),this.checkConnexion(),this.checkMovie(films.imdbID)}}>
-    <View style={{flex:1,flexDirection:'column',width: viewportWidth,alignItems:'center'}}>
-    <Image source={{uri: films.Poster}} style={{height:426, width:320,resizeMode:'cover',marginTop:'3%',borderColor:'#FF5252',borderWidth:4}} />
-    <Text style={{backgroundColor:'#FFFFFF',color:'#212121',width:320,fontWeight:'bold',textAlign:'center'}}> {films.Title}</Text>
+    if(this.state.searchList!=null)
+    {
+    renderedImages =  this.state.searchList.map((films,index) => {
+      if(films.Poster=="N/A")
+      {
+        films.Poster='http://www.all-result.com/v3/assets/images/imdbnoimage.jpg'
+      }
+    return (<TouchableHighlight key={index} onPress={() => {this.setState({modalFilm:true,filmSelectedPoster:films.Poster,filmSelectedID:films.imdbID,filmTitre:films.Title}),this.checkConnexion(),this.checkMovie(films.imdbID)}}>
+    <View style={{flex:1,flexDirection:'column',width:320,alignItems:'center',borderColor:'#FF5252',borderWidth:4,marginBottom:'2%'}}>
+    
+    <ImageBackground source={{uri: films.Poster}} style={{flex:1,height:422,width:312,justifyContent:'flex-end'}} >
+    
+    <Text style={{backgroundColor:'rgba(52, 52, 52, 0.9)',color:'white',width:312,fontWeight:'bold',textAlign:'center'}}> {films.Title}</Text>
+      </ImageBackground>
+      
     </View>
     </TouchableHighlight>);
-    });
+    })}
 
 
     return (

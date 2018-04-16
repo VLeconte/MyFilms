@@ -28,6 +28,11 @@ export default class ConnectScreen extends React.Component {
     drawerLockMode:'locked-closed',
   }
   
+  componentDidMount(){
+    mailId=''
+    mdp=''
+  }
+
   async signup(email, pass) {
     
     try {
@@ -48,7 +53,7 @@ async login(email, pass) {
     
   try {
       await firebase.auth()
-          .signInWithEmailAndPassword('vleconte01@gmail.com', 'azerty');
+          .signInWithEmailAndPassword(mailId, mdp);
           
       
           this.props.navigation.navigate("Home",{});
