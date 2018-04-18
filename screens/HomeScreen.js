@@ -29,7 +29,7 @@ export default class HomeScreen extends React.Component {
     this.state = { 
       recherche: '',
       dataSource:'',
-      isLoading:true,
+      isLoading:false,
       modalFilm:false,
       filmSelectedID:'',
       filmSelectedPoster:'',
@@ -45,7 +45,7 @@ export default class HomeScreen extends React.Component {
     
   }
 
-  componentDidMount(){
+  /*componentDidMount(){
     return fetch('http://www.omdbapi.com/?apikey=aa5829d5&s=guardians+of+the+galaxy&r=json.json')
       .then((response) => response.json())
       .then((responseJson) => {
@@ -61,7 +61,7 @@ export default class HomeScreen extends React.Component {
       .catch((error) =>{
         console.error(error);
       });
-  }
+  }*/
 
   async openUpPicker() {
     if(this.state.filmExiste)

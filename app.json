@@ -1,5 +1,15 @@
 {
   "expo": {
-    "sdkVersion": "25.0.0"
-  }
+    "name": "MyFilms",
+    "icon": "C:/Users/Vincent/Documents/React/MyFilms/screens/Logo.png",
+    "version": "1.0.0",
+    "slug": "MyFilms",
+    "sdkVersion": "25.0.0",
+    "ios": {
+      "bundleIdentifier": "com.MyFilmsDomain.MyFilms"
+    },
+    "android": {
+      "package": "com.MyFilmsDomain.MyFilms"
+    }
+   }
 }

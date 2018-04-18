@@ -6,7 +6,7 @@ import ConnectScreen from './screens/ConnectScreen'
 import HomeScreen from './screens/HomeScreen'
 import UserScreen from './screens/UserScreen'
 import StatScreen from './screens/StatScreen'
-
+console.disableYellowBox = true;
 const Navigation = DrawerNavigator({
     Connect : {screen : ConnectScreen},
     Home : {screen : HomeScreen},

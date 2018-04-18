@@ -17,6 +17,17 @@ const filmExisteDate=new Date(1521982140000);
 const filmExisteRef='';
 const starCount=5;
 const mesFilms=[];
+const sampleData=[{
+  seriesName: 'series1',
+  data: [
+    {x: '2018-02-01', y: 30},
+    {x: '2018-02-02', y: 200},
+    {x: '2018-02-03', y: 170},
+    {x: '2018-02-04', y: 250},
+    {x: '2018-02-05', y: 10}
+  ],
+  color: '#297AB1'
+}]
 
 
 export default class StatScreen extends React.Component {
@@ -35,7 +46,7 @@ export default class StatScreen extends React.Component {
       filmSelectedPoster:'',
       starNote:5,
       mesFilmsState:[],
-      mesFilmsDate:[],
+      mesFilmsData:[],
     };
   }
 
@@ -103,14 +114,24 @@ export default class StatScreen extends React.Component {
     }
 
     
-    let sampleData = [
+    /*let sampleData = [
       {
         seriesName: 'NotesDates',
         data: this.state.mesFilmsDate,
         color: '#297AB1'
       },
+    ]*/
+    if(this.state.mesFilmsDate!=null)
+    {let bcd=this.state.mesFilmsDate
+    sampleData = [
+      {
+        seriesName: 'series1',
+        data: bcd,
+        color: '#297AB1'
+      }
     ]
-    
+  }
+  
     
     return (
 
@@ -120,7 +141,13 @@ export default class StatScreen extends React.Component {
           Statistiques
           </Text>
           <View style={{width:'90%'}}>
-        <PureChart data={sampleData} height={400} type='bar' />
+
+        <PureChart data={sampleData} height={400} width={'100%'} type='line' customValueRenderer={(index, point) => {
+      return (
+        <Text style={{textAlign: 'center', paddingTop:'2%'}}>{point.x}</Text>
+      )
+    }} />
+
         </View>
       </ImageBackground>
     );
