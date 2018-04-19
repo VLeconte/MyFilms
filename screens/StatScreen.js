@@ -5,11 +5,18 @@ import PureChart from 'react-native-pure-chart';
 import {DatePickerAndroid ,StyleSheet, Text, View, ImageBackground, Dimensions, TextInput, ActivityIndicator, Button, Alert, Image, ScrollView , Modal, TouchableHighlight} from 'react-native';
 
 const{width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
+//Permet de récupérer la hauteur et largeur de l'écran d'affichage
 
+//Stocke l'utilisateur actuellement connecté
 const activeUser = null;
+
+//Stocke l'"uid" permettant de trouver l'utilisateur connecté dans la base de données
 const uid =null;
-const user = new Array(0);
+
+//Stocke les films présents dans la base de donéées de l'utilisateur
 const mesFilms=[];
+
+//Stocke les données permettant d'afficher le graphique
 const completDataNotesFilms=[{
   seriesName: 'series1',
   data: [
@@ -31,7 +38,10 @@ export default class StatScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
+      //Stocke le fait que l'application est en train de charger des éléments
       isLoading:true,
+
+      //Permet d'entrainer l'affichage du graphique quand les films ont été chargés
       mesFilmsState:[],
     };
   }
@@ -40,7 +50,7 @@ export default class StatScreen extends React.Component {
 
 
   componentDidMount() {
-    //Récupère les données à l'ouverture de la page et affiche le graphique
+    //Récupère les données à l'ouverture de la page et rempli les données nécessaires au graphique
     mesFilms = []
 
     this.checkConnexion().then((blabla) => {

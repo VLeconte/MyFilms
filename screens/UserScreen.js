@@ -4,13 +4,29 @@ import * as firebase from 'firebase';
 import {DatePickerAndroid ,StyleSheet, Text, View, ImageBackground, Dimensions, TextInput, ActivityIndicator, Button, Alert, Image, ScrollView , Modal, TouchableHighlight} from 'react-native';
 
 const{width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
+//Permet de récupérer la hauteur et largeur de l'écran d'affichage
 
+//Variables
+
+//Stocke l'utilisateur actuellement connecté
 const leUser = null;
+
+//Stocke l'"uid" permettant de trouver l'utilisateur connecté dans la base de données
 const uid =null;
+
+//Stocke le fait que le film actuellement selectionné est présent dans la base de données associée à l'utilisateur
 const filmExiste=false;
+
+//Stocke la date du film actuellement selectionné si ce dernier est déjà dans la base de données
 const filmExisteDate=new Date();
+
+//Stocke la référence du film selectionné si ce dernier est déjà dans la base de données
 const filmExisteRef='';
+
+//Stocke la note du film slectionné si ce dernier est déjà dans la base de données
 const starCount=5;
+
+//Stocke les films présents dans la base de donéées de l'utilisateur
 const mesFilms=[];
 
 
@@ -22,13 +38,31 @@ export default class UserScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
-      recherche: '',
-      isLoading:true,
+      //Stocke le fait que l'application est en train de charger des éléments
+      isLoading:false,
+
+      //Permet d'afficher ou non le modal de film
       modalFilm:false,
-      filmSelectedID:'',
-      filmSelectedPoster:'',
+
+      //Permet de changer la date
       filmExisteDateState:'',
+
+      //Stocke l'id imdb du film selectionné
+      filmSelectedID:'',
+
+      //Stocke le lien vers l'affiche du film selectionné
+      filmSelectedPoster:'',
+
+      //Stocke la note donnée au film
       starNote:5,
+
+      //Stocke la liste des films recherchés
+      searchList:[],
+
+      //Stocke le titre d'un film
+      filmTitre:'',
+      
+      //Permet d'entrainer l'affichage du graphique quand les films ont été chargés
       mesFilmsState:[],
     };
   }

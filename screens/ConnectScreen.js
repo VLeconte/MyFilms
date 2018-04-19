@@ -2,15 +2,30 @@ import React from 'react';
 import * as firebase from 'firebase';
 import { StyleSheet, Text, View, ImageBackground, Dimensions, TextInput, Button, Alert, Modal ,Image} from 'react-native';
 
+//Variables
+
+//Stocke l'adresse mail de connexion
 var mailId='';
+
+//Stocke le mot de passe de connexion
 var mdp='';
+
+//Stocke l'adresse mail d'inscription
 var newMailId='';
+
+//Stocke le premier mot de passe d'inscription
 var newMdp1='';
+
+//Stocke le deuxième mot de passe d'inscription
 var newMdp2='';
+
+//Stocke le mot de passe du champ de mot de passe oublié
 var mdpLost='';
 
 const { width: viewportWidth, height: viewportHeight } = Dimensions.get('window');
+//Permet de récupérer la hauteur et largeur de l'écran d'affichage
 
+//Données nécessaire à la liaison avec firebase
 firebase.initializeApp({
   apiKey: "AIzaSyBHLLPacp0x4Jjw9nZkFdslFt2FjvzvQa8",
   authDomain: "myfilms-54dd2.firebaseapp.com",
@@ -25,16 +40,19 @@ export default class ConnectScreen extends React.Component {
 
   static navigationOptions = {
     drawerLabel: 'Deconnexion',
+
     drawerLockMode:'locked-closed',
+    //Empêche l'ouverture du menu sur la page de connexion
   }
   
   componentDidMount(){
+    //Reset les champs de connexion à l'ouverture de la page
     mailId=''
     mdp=''
   }
 
   async signup(email, pass) {
-    
+    //Envoie la requète pour s'inscrire
     try {
         await firebase.auth()
             .createUserWithEmailAndPassword(email, pass);
@@ -50,7 +68,7 @@ export default class ConnectScreen extends React.Component {
 }
 
 async login(email, pass) {
-    
+    //Connecte l'utilisateur
   try {
       await firebase.auth()
           .signInWithEmailAndPassword(mailId, mdp);
@@ -66,6 +84,7 @@ async login(email, pass) {
 }
 
   onFocus() {
+    //Change la couleur de fond d'un champ
     this.setState({
       backgroundColor: 'green'
     })
@@ -73,7 +92,12 @@ async login(email, pass) {
 
   constructor(props) {
     super(props);
-    this.state = { showInscription: false,showPasswordLost: false  };
+    this.state = { 
+      //Régit l'affichage du modal d'inscription
+      showInscription: false,
+
+      //Régit l'affichage du modal de mot de passe perdu
+      showPasswordLost: false  };
   }
 
 
@@ -149,7 +173,7 @@ async login(email, pass) {
           
         </View>
 
-        <Modal
+        <Modal //Modal d'inscription
           visible={this.state.showInscription}
           transparent={true}
           animationType='fade'
@@ -220,7 +244,7 @@ async login(email, pass) {
           </View>
         </Modal>
 
-        <Modal
+        <Modal //Modal de mot de passe oublié
           visible={this.state.showPasswordLost}
           transparent={true}
           animationType='fade'
