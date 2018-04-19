@@ -29,10 +29,14 @@ export default class HomeScreen extends React.Component {
       filmSelectedID:'',
       filmSelectedPoster:'',
       starNote:5,
+      searchList:[],
       filmTitre:'',
     };
   }
 
+  componentDidMount(){
+    this.setState({searchList:[]})
+  }
 
   onStarRatingPress(rating) {
     //Modifie le nombre d'etoiles correspondant à la note du film
