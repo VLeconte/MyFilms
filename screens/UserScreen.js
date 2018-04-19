@@ -7,12 +7,8 @@ const{width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
 
 const leUser = null;
 const uid =null;
-const nbUser=1;
-const user = new Array(0);
-const myUser = [];
-const userCo=null;
 const filmExiste=false;
-const filmExisteDate=new Date(1521982140000);
+const filmExisteDate=new Date();
 const filmExisteRef='';
 const starCount=5;
 const mesFilms=[];
@@ -27,24 +23,25 @@ export default class UserScreen extends React.Component {
     super(props);
     this.state = { 
       recherche: '',
-      dataSource:'',
       isLoading:true,
       modalFilm:false,
       filmSelectedID:'',
       filmSelectedPoster:'',
+      filmExisteDateState:'',
       starNote:5,
       mesFilmsState:[],
     };
   }
 
   onStarRatingPress(rating) {
-    
+    //Modifie le nombre d'etoiles correspondant à la note du film
       starCount=rating
       this.setState({starNote:rating})
     
   }
 
   checkMovie(idFilm){
+    //Regarde si un film est déjà présent dans la base de données de l'utilisateur d'après son id imdb
     this.checkConnexion().then((hop)=>{try{
       firebase.database().ref(uid).orderByChild('id').equalTo(idFilm).on("value", (data)=> {
         data.forEach(function(childessai)
@@ -59,16 +56,20 @@ export default class UserScreen extends React.Component {
   
   catch(error){
     console.log(error)
-  }}).then((filmExisteRef)=>(this.setState({modalFilm:true,starNote:starCount})))
-
+  }}).then((childessai)=>{
+    
+    this.setState({starNote:starCount,filmExisteDateState:filmExisteDate}),
+    starCount=5,
+    filmExisteDate=new Date()})
   
   }
 
     componentDidMount(){
+      //Permet l'affichage à l'ouverture de la page
     mesFilms=[]
     this.checkConnexion().then((blabla)=>{
     try{
-      return firebase.database().ref(uid).orderByChild('dateInverse').once("value", (data)=> {
+      return firebase.database().ref(uid).orderByChild('dateInverse').on("value", (data)=> {
         data.forEach(function(childessai)
         {
           mesFilms.push(childessai.val())
@@ -86,6 +87,7 @@ export default class UserScreen extends React.Component {
   
 
   async openUpPicker() {
+    //Gère le changement de la date de visionnage
     if(this.state.filmExiste)
     {
       datePickup=filmExisteDate
@@ -101,31 +103,17 @@ export default class UserScreen extends React.Component {
         });
         if (action !== DatePickerAndroid.dismissedAction) {
           filmExisteDate=new Date(year,month,[day])
+          this.setState({filmExisteDateState:filmExisteDate})
         }
       } catch ({code, message}) {
         console.warn('Cannot open date picker', message);
       }
 }
 
-  rechercheFilm(){
-    return fetch('http://www.omdbapi.com/?apikey=aa5829d5&s='+this.state.recherche+'&r=json.json')
-      .then((response) => response.json())
-      .then((responseJson) => {
-
-        this.setState({
-          isLoading: false,
-          searchList: responseJson.Search,
-        }, function(){
-
-        });
-      })
-      .catch((error) =>{
-        console.error(error);
-      });
-  }
+  
 
   async checkConnexion()  {
-
+    //Récupère les éléments permettant d'accèder à l'utilisateur
     try{
       leUser = firebase.auth().currentUser;
 
@@ -138,6 +126,7 @@ export default class UserScreen extends React.Component {
   }
 
   addMovie(){
+    //Ajoute ou modifie un film dans la base de données
     let movie ={
       id:this.state.filmSelectedID,
       poster:this.state.filmSelectedPoster,
@@ -160,8 +149,9 @@ export default class UserScreen extends React.Component {
   
   
   render() {
-
+    //Affichage
     if(this.state.isLoading){
+      //Met un écran de chargement en cas d'attente nécessaire au lancement de la page
       return(
         <View style={{flex: 1, padding: 20}}>
           <ActivityIndicator/>
@@ -170,7 +160,8 @@ export default class UserScreen extends React.Component {
     }
 
     const renderedImages =  this.state.mesFilmsState.map((films,index) => {
-    return (<TouchableHighlight key={index} onPress={() => {this.setState({filmSelectedPoster:films.poster}),this.setState({filmSelectedID:films.id}),this.checkMovie(films.id)}}>
+      //Crée un composant pour chaque film associé à la recherche
+    return (<TouchableHighlight key={index} onPress={() => {this.setState({modalFilm:true,filmSelectedPoster:films.poster}),this.setState({filmSelectedID:films.id}),this.checkMovie(films.id)}}>
     <View style={{flex:1,flexDirection:'column',width:320,alignItems:'center',borderColor:'#FF5252',borderWidth:4,marginBottom:'2%'}}>
     <ImageBackground source={{uri: films.poster}} style={{flex:1,height:422,width:312,justifyContent:'flex-end'}} >
     
@@ -190,6 +181,7 @@ export default class UserScreen extends React.Component {
           </ScrollView>
 
           <Modal
+          //Modal apparaissant lors du clique sur un film
           visible={this.state.modalFilm}
           transparent={true}
           animationType='fade'
@@ -258,14 +250,6 @@ const styles = StyleSheet.create({
     paddingTop:'3%',
   },
 
-  TI: {
-    height: 40,
-    width: 320,
-    margin: 1,
-    color: '#212121',
-    fontSize: 20,
-    backgroundColor:'#FFFFFF',
-  },
 
   starRate: {
     padding:'4%',
@@ -295,11 +279,4 @@ const styles = StyleSheet.create({
     margin: 15,
   },
 
-  containerModalInscription: {
-    height: 40,
-    width: 320,
-    margin: 1,
-    color: 'black',
-    fontSize: 20,
-  },
 });

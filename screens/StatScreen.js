@@ -6,18 +6,11 @@ import {DatePickerAndroid ,StyleSheet, Text, View, ImageBackground, Dimensions, 
 
 const{width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
 
-const leUser = null;
+const activeUser = null;
 const uid =null;
-const nbUser=1;
 const user = new Array(0);
-const myUser = [];
-const userCo=null;
-const filmExiste=false;
-const filmExisteDate=new Date(1521982140000);
-const filmExisteRef='';
-const starCount=5;
 const mesFilms=[];
-const sampleData=[{
+const completDataNotesFilms=[{
   seriesName: 'series1',
   data: [
     {x: '2018-02-01', y: 30},
@@ -38,61 +31,52 @@ export default class StatScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
-      recherche: '',
-      dataSource:'',
       isLoading:true,
-      modalFilm:false,
-      filmSelectedID:'',
-      filmSelectedPoster:'',
-      starNote:5,
       mesFilmsState:[],
-      mesFilmsData:[],
     };
   }
 
 
 
 
-    componentDidMount(){
-    mesFilms=[]
-    this.checkConnexion().then((blabla)=>{
-    try{
-      return firebase.database().ref(uid).orderByChild('dateInverse').once("value", (data)=> {
-        data.forEach(function(childessai)
-        {
-          mesFilms.push(childessai.val())
-        })})
-        
+  componentDidMount() {
+    //Récupère les données à l'ouverture de la page et affiche le graphique
+    mesFilms = []
+
+    this.checkConnexion().then((blabla) => {
+      try {
+        return firebase.database().ref(uid).orderByChild('dateInverse').once("value", (data) => {
+          data.forEach(function (childessai) {
+            mesFilms.push(childessai.val())
+          })
+        })
+
       }
-      
-  catch(error){
-    console.log(error)
-  }}).then((euuuh)=>{
-    let essaiDates=[]
-    this.setState({isLoading:false,mesFilmsState:mesFilms})
-    this.state.mesFilmsState.forEach(function(film){
-      let dateFilm=new Date(film.date)
-      essaiDates.push({x:film.titre,y:film.note})
+
+      catch (error) {
+        console.log(error)
+      }
+    }).then((euuuh) => {
+      let essaiDates = []
+      this.setState({ isLoading: false, mesFilmsState: mesFilms })
+      this.state.mesFilmsState.forEach(function (film) {
+        let dateFilm = new Date(film.date)
+        essaiDates.push({ x: film.titre, y: film.note })
       })
-      this.setState({mesFilmsDate:essaiDates})
-
-
+      this.setState({ mesFilmsDate: essaiDates })
     })
-    
-    
-  
   }
 
 
-  async checkConnexion()  {
+  async checkConnexion() {
+    //Récupère les éléments permettant d'accèder à l'utilisateur
+    try {
+      activeUser = firebase.auth().currentUser;
 
-    try{
-      leUser = firebase.auth().currentUser;
 
-
-      uid = leUser.uid;
+      uid = activeUser.uid;
     }
-    catch(error){
+    catch (error) {
       console.log(error);
     }
   }
@@ -104,8 +88,9 @@ export default class StatScreen extends React.Component {
   
   
   render() {
-
+    //Affichage
     if(this.state.isLoading){
+      //Met un écran de chargement en cas d'attente nécessaire au lancement de la page
       return(
         <View style={{flex: 1, padding: 20}}>
           <ActivityIndicator/>
@@ -114,19 +99,12 @@ export default class StatScreen extends React.Component {
     }
 
     
-    /*let sampleData = [
-      {
-        seriesName: 'NotesDates',
-        data: this.state.mesFilmsDate,
-        color: '#297AB1'
-      },
-    ]*/
     if(this.state.mesFilmsDate!=null)
-    {let bcd=this.state.mesFilmsDate
-    sampleData = [
+    {let dataNotesFilms=this.state.mesFilmsDate
+    completDataNotesFilms = [
       {
-        seriesName: 'series1',
-        data: bcd,
+        seriesName: 'NotesFilms',
+        data: dataNotesFilms,
         color: '#297AB1'
       }
     ]
@@ -142,7 +120,7 @@ export default class StatScreen extends React.Component {
           </Text>
           <View style={{width:'90%'}}>
 
-        <PureChart data={sampleData} height={400} width={'100%'} type='line' customValueRenderer={(index, point) => {
+        <PureChart data={completDataNotesFilms} height={400} width={'100%'} type='line' customValueRenderer={(index, point) => {
       return (
         <Text style={{textAlign: 'center', paddingTop:'2%'}}>{point.x}</Text>
       )
@@ -165,50 +143,5 @@ const styles = StyleSheet.create({
     height:viewportHeight,
     flexDirection: 'column',
     paddingTop:'3%',
-  },
-
-  TI: {
-    height: 40,
-    width: 320,
-    margin: 1,
-    color: '#212121',
-    fontSize: 20,
-    backgroundColor:'#FFFFFF',
-  },
-
-  starRate: {
-    padding:'4%',
-  },
-
-  modalOutter: {
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: viewportWidth,
-    height: viewportHeight,
-  },
-
-  modalInscriptionInner: {
-    backgroundColor: '#212121',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '90%',
-    height: '90%',
-  },
-
-  TIModalInscription: {
-    borderBottomColor: 'black',
-    borderBottomWidth: 2,
-    margin: 15,
-  },
-
-  containerModalInscription: {
-    height: 40,
-    width: 320,
-    margin: 1,
-    color: 'black',
-    fontSize: 20,
   },
 });

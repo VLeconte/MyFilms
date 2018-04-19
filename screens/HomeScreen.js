@@ -7,15 +7,10 @@ const{width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
 
 const leUser = null;
 const uid =null;
-const nbUser=1;
-const user = new Array(0);
-const myUser = [];
-const userCo=null;
 const filmExiste=false;
-const filmExisteDate=new Date(1521982140000);
+const filmExisteDate=new Date();
 const filmExisteRef='';
 const starCount=5;
-const filmPoster='';
 const renderedImages=null;
 
 
@@ -28,9 +23,9 @@ export default class HomeScreen extends React.Component {
     super(props);
     this.state = { 
       recherche: '',
-      dataSource:'',
       isLoading:false,
       modalFilm:false,
+      filmExisteDateState:'',
       filmSelectedID:'',
       filmSelectedPoster:'',
       starNote:5,
@@ -38,32 +33,17 @@ export default class HomeScreen extends React.Component {
     };
   }
 
+
   onStarRatingPress(rating) {
-    
+    //Modifie le nombre d'etoiles correspondant à la note du film
       starCount=rating
       this.setState({starNote:rating})
     
   }
 
-  /*componentDidMount(){
-    return fetch('http://www.omdbapi.com/?apikey=aa5829d5&s=guardians+of+the+galaxy&r=json.json')
-      .then((response) => response.json())
-      .then((responseJson) => {
-
-        this.setState({
-          isLoading: false,
-          searchList: responseJson.Search,
-        }, function(){
-
-        });
-
-      })
-      .catch((error) =>{
-        console.error(error);
-      });
-  }*/
 
   async openUpPicker() {
+    //Gère le changement de la date de visionnage
     if(this.state.filmExiste)
     {
       datePickup=filmExisteDate
@@ -79,6 +59,7 @@ export default class HomeScreen extends React.Component {
         });
         if (action !== DatePickerAndroid.dismissedAction) {
           filmExisteDate=new Date(year,month,[day])
+          this.setState({filmExisteDateState:filmExisteDate})
         }
       } catch ({code, message}) {
         console.warn('Cannot open date picker', message);
@@ -86,6 +67,7 @@ export default class HomeScreen extends React.Component {
 }
 
   rechercheFilm(){
+    //Récupère une recherche de films sur OMDB Api
     return fetch('http://www.omdbapi.com/?apikey=aa5829d5&s='+this.state.recherche+'&r=json.json')
       .then((response) => response.json())
       .then((responseJson) => {
@@ -103,7 +85,7 @@ export default class HomeScreen extends React.Component {
   }
 
   async checkConnexion()  {
-
+    //Récupère les éléments permettant d'accèder à l'utilisateur
     try{
       leUser = firebase.auth().currentUser;
 
@@ -116,6 +98,7 @@ export default class HomeScreen extends React.Component {
   }
 
   addMovie(){
+    //Ajoute ou modifie un film dans la base de données
     let movie ={
       id:this.state.filmSelectedID,
       poster:this.state.filmSelectedPoster,
@@ -127,7 +110,7 @@ export default class HomeScreen extends React.Component {
     if(filmExiste)
     {
     firebase.database().ref(filmExisteRef).update(movie)
-    filmExiste=false;
+    filmExiste=false
     }
     else
     {
@@ -135,9 +118,11 @@ export default class HomeScreen extends React.Component {
     }
   }
 
+
   checkMovie(idFilm){
+    //Regarde si un film est déjà présent dans la base de données de l'utilisateur d'après son id imdb
     this.checkConnexion().then((hop)=>{try{
-      firebase.database().ref(uid).orderByChild('id').equalTo(idFilm).on("value", (data)=> {
+      firebase.database().ref(uid).orderByChild('id').equalTo(idFilm).on( "value",(data)=> {
         data.forEach(function(childessai)
         {
           filmExiste=true
@@ -150,12 +135,17 @@ export default class HomeScreen extends React.Component {
   
   catch(error){
     console.log(error)
-  }}).then((filmExiste)=>(this.setState({modalFilm:true,starNote:starCount})))
+  }}).then((childessai)=>{
+    
+    this.setState({starNote:starCount,filmExisteDateState:filmExisteDate}),
+    starCount=5,
+    filmExisteDate=new Date()})
 }
   
   render() {
-
+    //Affichage
     if(this.state.isLoading){
+      //Met un écran de chargement en cas d'attente nécessaire au lancement de la page
       return(
         <View style={{flex: 1, padding: 20}}>
           <ActivityIndicator/>
@@ -165,11 +155,12 @@ export default class HomeScreen extends React.Component {
     if(this.state.searchList!=null)
     {
     renderedImages =  this.state.searchList.map((films,index) => {
+      //Crée un composant pour chaque film associé à la recherche
       if(films.Poster=="N/A")
       {
         films.Poster='http://www.all-result.com/v3/assets/images/imdbnoimage.jpg'
       }
-    return (<TouchableHighlight key={index} onPress={() => {this.setState({modalFilm:true,filmSelectedPoster:films.Poster,filmSelectedID:films.imdbID,filmTitre:films.Title}),this.checkConnexion(),this.checkMovie(films.imdbID)}}>
+    return (<TouchableHighlight key={index} onPress={() => {this.checkMovie(films.imdbID),this.setState({modalFilm:true,filmSelectedPoster:films.Poster,filmSelectedID:films.imdbID,filmTitre:films.Title})}}>
     <View style={{flex:1,flexDirection:'column',width:320,alignItems:'center',borderColor:'#FF5252',borderWidth:4,marginBottom:'2%'}}>
     
     <ImageBackground source={{uri: films.Poster}} style={{flex:1,height:422,width:312,justifyContent:'flex-end'}} >
@@ -204,10 +195,11 @@ export default class HomeScreen extends React.Component {
           </ScrollView>
 
           <Modal
+          //Modal apparaissant lors du clique sur un film
           visible={this.state.modalFilm}
           transparent={true}
           animationType='fade'
-          onRequestClose={() => this.setState({ modalFilm: false })} >
+          onRequestClose={() => {this.setState({ modalFilm: false}),filmExiste=false}} >
           <View style={styles.modalOutter}>
             <View style={styles.modalInscriptionInner}>
 
@@ -241,7 +233,7 @@ export default class HomeScreen extends React.Component {
               <View style={{marginTop:'2%'}}>
                 <Button
                   onPress={() => {
-                    this.setState({ modalFilm: false });
+                    this.setState({ modalFilm: false});
                     this.checkConnexion();
                     this.addMovie();
                 }
@@ -309,11 +301,4 @@ const styles = StyleSheet.create({
     margin: 15,
   },
 
-  containerModalInscription: {
-    height: 40,
-    width: 320,
-    margin: 1,
-    color: 'black',
-    fontSize: 20,
-  },
 });
